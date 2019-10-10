@@ -31,6 +31,7 @@ import io.wcm.testing.jenkins.pipeline.plugins.CheckstylePluginMock
 import io.wcm.testing.jenkins.pipeline.plugins.ConfigFileProviderPluginMock
 import io.wcm.testing.jenkins.pipeline.plugins.EmailExtPluginMock
 import io.wcm.testing.jenkins.pipeline.plugins.FindBugsPluginMock
+import io.wcm.testing.jenkins.pipeline.plugins.HTTPRequestPluginMock
 import io.wcm.testing.jenkins.pipeline.plugins.JUnitPluginMock
 import io.wcm.testing.jenkins.pipeline.plugins.PMDPluginMock
 import io.wcm.testing.jenkins.pipeline.plugins.PipelineStageStepPluginMock
@@ -130,6 +131,11 @@ class LibraryIntegrationTestBase extends BasePipelineTest {
   ConfigFileProviderPluginMock configFileProviderPluginMock
 
   /**
+   *  Mocks the Core steps
+   */
+  CoreStepsMock coreStepsMock
+
+  /**
    * Mocks the pipeline utility steps plugin
    */
   PipelineUtilityStepsPluginMock pipelineUtilityStepsPluginMock
@@ -213,6 +219,11 @@ class LibraryIntegrationTestBase extends BasePipelineTest {
    */
   WorkflowDurableTaskStepPluginMock workflowDurableTaskStepPluginMock
 
+  /**
+   * Mocks the http_request plugin
+   */
+  HTTPRequestPluginMock httpRequestPluginMock
+
   @Override
   @Before
   void setUp() throws Exception {
@@ -233,6 +244,7 @@ class LibraryIntegrationTestBase extends BasePipelineTest {
     this.badgePluginMock = new BadgePluginMock(context)
     this.checkstylePluginMock = new CheckstylePluginMock(context)
     this.configFileProviderPluginMock = new ConfigFileProviderPluginMock(context)
+    this.coreStepsMock = new CoreStepsMock(context)
     this.credentialsPluginMock = new CredentialsPluginMock(context)
     this.emailExtPluginMock = new EmailExtPluginMock(context)
     this.findBugsPluginMock = new FindBugsPluginMock(context)
@@ -246,6 +258,7 @@ class LibraryIntegrationTestBase extends BasePipelineTest {
     this.timestamperPluginMock = new TimestamperPluginMock(context)
     this.versionNumberPluginMock = new VersionNumberPluginMock(context)
     this.workflowDurableTaskStepPluginMock = new WorkflowDurableTaskStepPluginMock(context)
+    this.httpRequestPluginMock = new HTTPRequestPluginMock(context)
 
     context.getPipelineTestHelper().registerAllowedMethod("getName", [], canonicalNameCallback)
     context.getPipelineTestHelper().registerAllowedMethod("getCanonicalName", [], canonicalNameCallback)

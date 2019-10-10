@@ -103,9 +103,10 @@ Have a look at [requirements](docs/requirements.md) to get the library running.
 The pipeline library comes with the following steps:
 
 * [ansible](vars/ansible.md)
-    * [`ansible.checkoutRequirements`](vars/ansible.md#checkoutrequirementsstring-requirementsymlpath)
-    * [`ansible.execPlaybook`](vars/ansible.md#execplaybookmap-config)
-    * [`ansible.getGalaxyRoleInfo`](vars/ansible.md#getgalaxyroleinforole-role)
+  * [`ansible.checkoutRequirements`](vars/ansible.md#checkoutrequirementsstring-requirementsymlpath)
+  * [`ansible.execPlaybook`](vars/ansible.md#execplaybookmap-config)
+  * [`ansible.getGalaxyRoleInfo`](vars/ansible.md#getgalaxyroleinforole-role)
+  * [`ansible.installRoles`](vars/ansible.md#installrolesmap-config)
 * [`checkoutScm`](vars/checkoutScm.md)
 * [`conditionalStage`](vars/conditionalStage.md)
 * [credentials](vars/credentials.md)
@@ -121,6 +122,8 @@ The pipeline library comes with the following steps:
   * [`mirrorRepository`](vars/gitTools.md#mirrorrepositorystring-srcurl-string-targeturl-liststring-srccredentialids--null-liststring-targetcredentialids--null)
   * [`mirrorRepositoryToRemote`](vars/gitTools.md#mirrorrepositorytoremotestring-srcrepopath-gitrepository-targetrepo-liststring-targetcredentialids--null)
   * [`mirrorRepositoryToWorkspace`](vars/gitTools.md#mirrorrepositorytoworkspacegitrepository-srcrepo-liststring-srccredentialids--null)
+* [jenkinsRestApi](vars/jenkinsRestApi.md)
+  * [`jenkinsRestApi.findJobsByNameRegex`](vars/jenkinsRestApi.md#list-job-findjobsbynameregexmap-remote)
 * [managedScripts](vars/managedScripts.md)
     * [`managedScripts.execJenkinsShellScript`](vars/managedScripts.md#execjenkinsshellscriptstring-scriptid-commandbuilder-commandbuilder-null-returnstdout--false-returnstatus--false)
     * [`managedScripts.execPipelineShellScript`](vars/managedScripts.md#execpipelineshellscriptstring-scriptpath-commandbuilder-commandbuilder-null-returnstdout--false-returnstatus--false)
@@ -137,6 +140,7 @@ The pipeline library comes with the following steps:
     * [`wrap.color`](vars/wrap.md#colormap-config-closure-body)
 
 ## Utilities
+* [Build Parameter Factory](src/io/wcm/devops/jenkins/pipeline/job/BuildParameterFactory.groovy)
 * [Integration Testing](vars/integrationTestUtils.md)
 * [Logging](docs/logging.md)
     * [`Logger`](src/io/wcm/devops/jenkins/pipeline/utils/logging/Logger.groovy)

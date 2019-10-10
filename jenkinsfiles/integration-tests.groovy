@@ -4,15 +4,19 @@
  * cps/sandbox exception.
  */
 @Library('pipeline-library') pipelineLibrary
+
 library identifier: 'pipeline-library-example@master', retriever: modernSCM([
   $class: 'GitSCMSource',
   remote: 'https://github.com/wcm-io-devops/jenkins-pipeline-library-example.git'
 ])
 
+import org.jenkinsci.plugins.workflow.libs.Library
+import groovy.transform.Field
 import io.wcm.devops.jenkins.pipeline.credentials.Credential
 import io.wcm.devops.jenkins.pipeline.credentials.CredentialConstants
 import io.wcm.devops.jenkins.pipeline.credentials.CredentialParser
 import io.wcm.devops.jenkins.pipeline.environment.EnvironmentConstants
+import io.wcm.devops.jenkins.pipeline.job.BuildParameterFactory
 import io.wcm.devops.jenkins.pipeline.managedfiles.ManagedFile
 import io.wcm.devops.jenkins.pipeline.managedfiles.ManagedFileConstants
 import io.wcm.devops.jenkins.pipeline.managedfiles.ManagedFileParser
@@ -77,7 +81,15 @@ def assertVersionsOrder(String v1, String v2) {
 
 node() {
 
-  integrationTestUtils.integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.credentials") {
+  integrationTestUtils.runTestsOnPackage("annotations") {
+    integrationTestUtils.runTest("@Field") {
+      @Field String myFieldVariable = "myFieldVariableValue"
+      @Field String myFieldVariableAccess = "${myFieldVariable}-used"
+      integrationTestUtils.assertEquals("myFieldVariableValue-used", myFieldVariableAccess)
+    }
+  }
+
+  integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.credentials") {
     integrationTestUtils.runTest("Credential") {
       Credential credential
 
@@ -122,7 +134,7 @@ node() {
     }
   }
 
-  integrationTestUtils.integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.environment") {
+  integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.environment") {
     integrationTestUtils.runTest("EnvironmentConstants") {
       EnvironmentConstants environmentConstants = new EnvironmentConstants()
       log.info(EnvironmentConstants.BRANCH_NAME,  EnvironmentConstants.BRANCH_NAME)
@@ -133,7 +145,15 @@ node() {
     }
   }
 
-  integrationTestUtils.integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.managedfiles") {
+  integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.job") {
+    integrationTestUtils.runTest("BuildParameterFactory") {
+      BuildParameterFactory buildParameterFactory = new BuildParameterFactory(this)
+      def checkboxParam = buildParameterFactory.createMultiCheckboxParameter("multiCheckboxParam","select multiple values",["val11","val12","val13"],["val11","val12","val13"])
+      def multiselectParam = buildParameterFactory.createMultiSelectParameter("multiSelectParam","select multiple values",["val21","val22","val23"],["val22"])
+    }
+  }
+
+  integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.managedfiles") {
     integrationTestUtils.runTest("ManagedFile") {
       ManagedFile managedFile
 
@@ -188,7 +208,7 @@ node() {
     }
   }
 
-  integrationTestUtils.integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.model") {
+  integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.model") {
     integrationTestUtils.runTest("Result") {
       Result testResult
       testResult = Result.NOT_BUILD
@@ -222,7 +242,7 @@ node() {
     }
   }
 
-  integrationTestUtils.integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.scm") {
+  integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.scm") {
     integrationTestUtils.runTest("GitRepository") {
       GitRepository gitRepo = new GitRepository(this, "https://github.com/wcm-io-devops/jenkins-pipeline-library.git")
       integrationTestUtils.assertEquals(GitRepository.PROTOCOL_HTTPS, gitRepo.getProtocol())
@@ -243,7 +263,7 @@ node() {
     }
   }
 
-  integrationTestUtils.integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.shell") {
+  integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.shell") {
     integrationTestUtils.runTest("CommandBuilderImpl") {
       CommandBuilderImpl commandBuilder
       commandBuilder = new CommandBuilderImpl((DSL) this.steps, "somecommand")
@@ -359,7 +379,7 @@ node() {
     }
   }
 
-  integrationTestUtils.integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.tools") {
+  integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.tools") {
     integrationTestUtils.runTest("ansible.Role") {
       Role role1 = new Role("src")
       role1.isValid()
@@ -383,7 +403,7 @@ node() {
     }
   }
 
-  integrationTestUtils.integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.utils.logging") {
+  integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.utils.logging") {
     integrationTestUtils.runTest("Logger") {
       Logger test = new Logger(this)
       // call all logger init functions
@@ -433,7 +453,7 @@ node() {
     }
   }
 
-  integrationTestUtils.integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.utils.maps") {
+  integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.utils.maps") {
     integrationTestUtils.runTest("MapUtils") {
       Map map1 = [
         node1: [
@@ -520,7 +540,7 @@ node() {
     }
   }
 
-  integrationTestUtils.integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.utils.resources") {
+  integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.utils.resources") {
     integrationTestUtils.runTest("JsonLibraryResource") {
       JsonLibraryResource jsonLibraryResource = new JsonLibraryResource((DSL) this.steps, CredentialConstants.SCM_CREDENTIALS_PATH)
       jsonLibraryResource.load()
@@ -531,7 +551,7 @@ node() {
     }
   }
 
-  integrationTestUtils.integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.utils") {
+  integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.utils") {
     integrationTestUtils.runTest("ConfigConstants") {
       ConfigConstants configConstants = new ConfigConstants()
       log.info(ConfigConstants.ANSI_COLOR, ConfigConstants.ANSI_COLOR)
@@ -652,7 +672,7 @@ node() {
 
     }
   }
-  integrationTestUtils.integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.utils.versioning") {
+  integrationTestUtils.runTestsOnPackage("io.wcm.devops.jenkins.pipeline.utils.versioning") {
 
 
 

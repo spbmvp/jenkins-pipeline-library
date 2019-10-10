@@ -20,6 +20,8 @@
 
 
 import groovy.json.JsonOutput
+import io.wcm.devops.jenkins.pipeline.shell.CommandBuilder
+import io.wcm.devops.jenkins.pipeline.shell.CommandBuilderImpl
 import io.wcm.devops.jenkins.pipeline.tools.ansible.Role
 import io.wcm.devops.jenkins.pipeline.tools.ansible.RoleRequirements
 import io.wcm.devops.jenkins.pipeline.utils.logging.Logger
@@ -34,7 +36,6 @@ import static io.wcm.devops.jenkins.pipeline.utils.ConfigConstants.*
  * The scm uris for ansible galaxy roles will be looked up by using
  * getGalaxyRoleInfo
  *
- * @see getGalaxyRoleInfo
  */
 void checkoutRequirements(String requirementsYmlPath) {
     Logger log = new Logger("ansible:checkoutRequirements -> ")
@@ -52,16 +53,12 @@ void checkoutRequirements(String requirementsYmlPath) {
                 log.debug("building scm url")
                 String githubUser = roleApiInfo['github_user']
                 String githubRepo = roleApiInfo['github_repo']
-                String githubBranch= roleApiInfo['github_branch']
 
                 String scmUrl = "https://github.com/${githubUser}/${githubRepo}.git"
+
                 // set values into role for checkout
                 role.setScm(Role.SCM_GIT)
                 role.setSrc(scmUrl)
-
-                if (githubBranch != "") {
-                    role.setVersion(githubBranch)
-                }
             }
         }
     }
@@ -107,6 +104,11 @@ void execPlaybook(Map config) {
     Map extraVars = (Map) ansibleCfg[ANSIBLE_EXTRA_VARS] ?: [:]
     Boolean injectParams = ansibleCfg[ANSIBLE_INJECT_PARAMS] != null ? ansibleCfg[ANSIBLE_INJECT_PARAMS] : false
 
+    if (playbook == null) {
+        log.warn("no ansible playbook defined, skipping")
+        return
+    }
+
     // create copies
     Map internalExtraVars = MapUtils.merge(extraVars)
     List internalExtraParameters = []
@@ -146,7 +148,7 @@ void execPlaybook(Map config) {
     log.trace("tags: $tags")
     log.trace("credentialsId: $credentialsId")
 
-    withEnv(['PYTHONUNBUFFERED=1']) {
+    _ansibleWrapper {
         ansiblePlaybook(
           colorized: colorized,
           extras: extras,
@@ -166,6 +168,56 @@ void execPlaybook(Map config) {
 }
 
 /**
+ * Provides the configured ansible tool for the closure/body
+ *
+ * @param config The configuration for the ansible tool
+ * @param body The closure you want to execute
+ */
+void withInstallation(Map config, Closure body) {
+    Logger log = new Logger("withInstallation")
+    Map ansibleCfg = config[ANSIBLE] ?: null
+
+    String ansibleInstallation = ansibleCfg[ANSIBLE_INSTALLATION] ?: null
+
+    def ansibleToolPath = tool(name: ansibleInstallation, type: 'org.jenkinsci.plugins.ansible.AnsibleInstallation')
+
+    withEnv(["PATH=${ansibleToolPath}:${env.PATH}"]) {
+        body()
+    }
+}
+
+/**
+ * Installs ansible requirements
+ *
+ * @param config The configuration used to install the roles
+ */
+void installRoles(Map config) {
+    Logger log = new Logger("installRoles")
+    Map ansibleCfg = config[ANSIBLE] ?: null
+
+    String requirementsPath = ansibleCfg[ANSIBLE_GALAXY_ROLE_FILE] ?: null
+    Boolean requirementsForce = ansibleCfg[ANSIBLE_GALAXY_FORCE] != null ? ansibleCfg[ANSIBLE_GALAXY_FORCE] : false
+
+    this.withInstallation(config) {
+        CommandBuilder commandBuilder = new CommandBuilderImpl(this.steps, "ansible-galaxy")
+        commandBuilder.addArgument("install")
+        commandBuilder.addPathArgument("-r", requirementsPath)
+        if (requirementsForce) {
+            commandBuilder.addArgument("--force")
+        }
+        log.debug("command", commandBuilder.build())
+        sh(commandBuilder.build())
+    }
+
+}
+
+void _ansibleWrapper(Closure body) {
+    withEnv(['PYTHONUNBUFFERED=1']) {
+        body()
+    }
+}
+
+/**
  * Calls the ansible galaxy API for role information
  *
  * @param role The role for which the ansible galaxy API info should be retrieved
@@ -173,46 +225,21 @@ void execPlaybook(Map config) {
  */
 Object getGalaxyRoleInfo(Role role) {
     Logger log = new Logger("ansible:getGalaxyRoleInfo -> ")
-    if (role.isGalaxyRole() == false) {
+    if (!role.isGalaxyRole()) {
         log.debug("Role with name: " + role.getName() + " is not a galaxy role")
         return null
     }
-    log.info("Getting role info for ${role.getName()}")
-    String apiUrl = "https://galaxy.ansible.com/api/v1/roles/"
+    log.info("Getting role info for ${role.getName()} (namespace: '${role.getNamespace()}', role name: '${role.getRoleName()}')")
 
-    //roles/?owner__username=tecris&name=maven"
+    String roleApiUrl = "https://galaxy.ansible.com/api/v1/roles/?owner__username=${role.getNamespace()}&name=${role.getRoleName()}"
 
-    def matcher = role.getName() =~ /(.+)\.(.+)/
-    log.debug("matcher: $matcher")
-
-    if (!matcher) {
-        log.warn("unable to extract username name role name, return and to nothing")
-        return null
-    }
-
-    String ownerUsername = matcher[0][1]
-    String name = matcher[0][2]
-    // directly reset matcher because it is not serializable
-    matcher = null
-    String roleApiUrl = "$apiUrl?owner__username=$ownerUsername&name=$name"
-    String apiResultStr
-
-    // execute the shell
-    try {
-        apiResultStr = sh(returnStdout: true, script: "curl --silent '$roleApiUrl'")
-    } catch (Exception ex) {
-        log.error("Unable to get role info for ${role.getName()}")
-        return null
-    }
-
-    log.trace("api curl result: $apiResultStr")
-    Object apiResultJson = readJSON(text: apiResultStr)
-    log.trace("api json result: $apiResultJson")
+    def response = httpRequest(acceptType: 'APPLICATION_JSON', timeout: 30, url: roleApiUrl, consoleLogResponseBody: false, validResponseCodes: '200', quiet: true)
+    Map apiResultJson = (Map) readJSON(text: response.getContent())
 
     Integer size = apiResultJson.results.size()
     // we expect only one result here because username and role should only give one result
     if (size != 1) {
-        log.warn("Expected one role result but found: $size")
+        log.warn("Expected one role result for ${role.getName()}, but found: $size")
         return null
     }
 
