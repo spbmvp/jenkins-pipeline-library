@@ -19,6 +19,8 @@
  */
 
 import io.wcm.devops.jenkins.pipeline.credentials.Credential
+import io.wcm.devops.jenkins.pipeline.environment.EnvironmentConstants
+import io.wcm.devops.jenkins.pipeline.environment.EnvironmentUtils
 import io.wcm.devops.jenkins.pipeline.scm.GitRepository
 import io.wcm.devops.jenkins.pipeline.shell.CommandBuilder
 import io.wcm.devops.jenkins.pipeline.shell.GitCommandBuilderImpl
@@ -264,4 +266,63 @@ List<String> _lookupRepositoryCredentials(GitRepository repo, List credentialIds
     }
   }
   return credentialIds
+}
+
+/**
+ * Looks up the parent branch e.g. for feature branch merge operations.
+ *
+ * @return The name of the detected parent branch
+ */
+String getParentBranch() {
+  Logger log = new Logger("getParentBranch")
+  String parentBranch = "origin/develop"
+
+  log.info("check if git repo has a remote branch named: '${parentBranch}'")
+  Integer developBranchResultCode = sh(script: "git branch --list --remote | grep ${parentBranch}", returnStatus: true)
+  log.debug("git command result code:", developBranchResultCode)
+
+  if (developBranchResultCode != 0) {
+    log.info("No remote branch with the name '${parentBranch}' found, falling back to 'origin/master'")
+    parentBranch = "origin/master"
+  }
+
+  log.info("evaluated parent branch: '${parentBranch}'")
+  return parentBranch
+}
+
+/**
+ * Detects and returns the branch name.
+ * The result is also stored in the environment variable EnvironmentConstants.GIT_BRANCH
+ * when EnvironmentConstants.GIT_BRANCH was not set before
+ *
+ * @return The name of the git branch or the short commit hash
+ */
+String getBranch() {
+  Logger log = new Logger("gitTools.getBranch")
+  log.debug("try to retrieve branch from environment vars.")
+
+  EnvironmentUtils envUtils = new EnvironmentUtils(this)
+  List<String> branchNameEnvs = [
+    EnvironmentConstants.GIT_BRANCH,
+    EnvironmentConstants.GIT_LOCAL_BRANCH,
+    EnvironmentConstants.BRANCH_NAME,
+  ]
+  String result = envUtils.getFirstFound(branchNameEnvs)
+
+  // when result is still null get the commit hash
+  try {
+    if (result == null) {
+      log.info("unable to determine git branch name via environment variables, using commit hash instead")
+      gitCommit = sh(returnStdout: true, script: 'git rev-parse HEAD').trim().take(6)
+      result = gitCommit
+    }
+  }
+  catch (Exception ex) {
+    log.warn("unable to determine git branch, set to empty string")
+    result = ""
+  }
+
+  envUtils.setEnvWhenEmpty(EnvironmentConstants.GIT_BRANCH, result)
+
+  return result
 }

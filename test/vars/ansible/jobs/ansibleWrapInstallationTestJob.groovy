@@ -23,12 +23,6 @@ import io.wcm.testing.jenkins.pipeline.LibraryIntegrationTestContext
 
 import static io.wcm.devops.jenkins.pipeline.utils.ConfigConstants.*
 
-/**
- * Runs execMaven step with path to custom maven executable
- *
- * @return The script
- * @see vars.execMaven.ExecMavenIT
- */
 def execute() {
   ansible.withInstallation(
     (ANSIBLE): [

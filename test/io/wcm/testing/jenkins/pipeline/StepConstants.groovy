@@ -74,7 +74,11 @@ class StepConstants {
   public final static String MANAGED_SCRIPTS_EXEC_JENKINS_SHELL_SCRIPT = "execJenkinsShellScript"
   public final static String MANAGED_SCRIPTS_EXEC_PIPELINE_SHELL_SCRIPT = "execPipelineShellScript"
 
+  public final static String MATTERMOST_SEND = "mattermostSend"
+
   public final static String MAVEN_PURGE_SNAPSHOTS = "purgeSnapshots"
+
+  public final static String MQTT_NOTIFICATION = "mqttNotification"
 
   public final static String NODE = "node"
 
@@ -90,6 +94,8 @@ class StepConstants {
   public final static String READ_JSON = "readJSON"
   public final static String READ_MAVEN_POM = "readMavenPom"
   public final static String READ_YAML = "readYaml"
+
+  public final static String RETRY = "retry"
 
   public final static String REMOVE_BADGES = "removeBadges"
   public final static String REMOVE_HTML_BADGES = "removeHtmlBadges"

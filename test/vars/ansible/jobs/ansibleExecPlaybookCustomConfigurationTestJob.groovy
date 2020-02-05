@@ -21,37 +21,32 @@ package vars.ansible.jobs
 
 import static io.wcm.devops.jenkins.pipeline.utils.ConfigConstants.*
 
-/**
- * Runs execMaven step with path to custom maven executable
- *
- * @return The script
- * @see vars.execMaven.ExecMavenIT
- */
 def execute() {
 
   Map config = [
-      (ANSIBLE): [
-          (ANSIBLE_COLORIZED)       : false,
-          (ANSIBLE_EXTRA_PARAMETERS): ["-v"],
-          (ANSIBLE_EXTRA_VARS)      : [
-              "string" : "value",
-              "boolean": true,
-              "integer": 1,
-              "list"   : [1, 2, 3, 4]
-          ],
-          (ANSIBLE_FORKS)           : 10,
-          (ANSIBLE_INSTALLATION)    : "ansible-installation-variant2",
-          (ANSIBLE_INVENTORY)       : "ansible-inventory-variant2",
-          (ANSIBLE_LIMIT)           : "ansible-limit-variant2",
-          (ANSIBLE_PLAYBOOK)        : "ansible-playbook-variant2",
-          (ANSIBLE_CREDENTIALS_ID)  : "ansible-credentials-variant2",
-          (ANSIBLE_SKIPPED_TAGS)    : "ansible-tags-variant2",
-          (ANSIBLE_START_AT_TASK)   : "ansible-start-at-task-variant2",
-          (ANSIBLE_SUDO)            : true,
-          (ANSIBLE_SUDO_USER)       : "ansible-sudo-user-variant2",
-          (ANSIBLE_TAGS)            : "ansible-tags-variant2",
-          (ANSIBLE_INJECT_PARAMS)   : false
-      ]
+    (ANSIBLE): [
+      (ANSIBLE_COLORIZED)           : false,
+      (ANSIBLE_EXTRA_PARAMETERS)    : ["-v"],
+      (ANSIBLE_EXTRA_VARS)          : [
+        "string" : "value",
+        "boolean": true,
+        "integer": 1,
+        "list"   : [1, 2, 3, 4]
+      ],
+      (ANSIBLE_FORKS)               : 10,
+      (ANSIBLE_INSTALLATION)        : "ansible-installation-variant2",
+      (ANSIBLE_INVENTORY)           : "ansible-inventory-variant2",
+      (ANSIBLE_LIMIT)               : "ansible-limit-variant2",
+      (ANSIBLE_PLAYBOOK)            : "ansible-playbook-variant2",
+      (ANSIBLE_CREDENTIALS_ID)      : "ansible-credentials-variant2",
+      (ANSIBLE_SKIPPED_TAGS)        : "ansible-tags-variant2",
+      (ANSIBLE_START_AT_TASK)       : "ansible-start-at-task-variant2",
+      (ANSIBLE_SUDO)                : true,
+      (ANSIBLE_SUDO_USER)           : "ansible-sudo-user-variant2",
+      (ANSIBLE_TAGS)                : "ansible-tags-variant2",
+      (ANSIBLE_INJECT_PARAMS)       : false,
+      (ANSIBLE_VAULT_CREDENTIALS_ID): "ansible-vault-credentials-id2"
+    ]
   ]
 
   ansible.execPlaybook(config)

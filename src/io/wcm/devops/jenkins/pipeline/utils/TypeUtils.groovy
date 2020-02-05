@@ -20,6 +20,7 @@
 package io.wcm.devops.jenkins.pipeline.utils
 
 import com.cloudbees.groovy.cps.NonCPS
+import io.wcm.devops.jenkins.pipeline.utils.maps.MapMergeMode
 import io.wcm.devops.jenkins.pipeline.versioning.ComparableVersion
 
 /**
@@ -53,6 +54,28 @@ class TypeUtils implements Serializable {
   }
 
   /**
+   * Utility function to return true for all MapMergeMode objects
+   *
+   * @param mode MapMergeMode object
+   * @return true
+   */
+  @NonCPS
+  isMapMergeMode(MapMergeMode mode) {
+    return true
+  }
+
+  /**
+   * Utility function to return false for all non MapMergeMode objects
+   *
+   * @param object Non MapMergeMode object
+   * @return false
+   */
+  @NonCPS
+  isMapMergeMode(Object mode) {
+    return false
+  }
+
+  /**
    * Utility function to return false for all non List objects
    *
    * @param object Any other object that is not of type List
@@ -71,6 +94,28 @@ class TypeUtils implements Serializable {
    */
   @NonCPS
   Boolean isList(List object) {
+    return true
+  }
+
+  /**
+   * Utility function to return false for all non Closure objects
+   *
+   * @param object Any other object that is not of type Closure
+   * @return false
+   */
+  @NonCPS
+  Boolean isClosure(Object object) {
+    return false
+  }
+
+  /**
+   * Utility function to return true for all Closure objects
+   *
+   * @param object Closure object
+   * @return true
+   */
+  @NonCPS
+  Boolean isClosure(Closure object) {
     return true
   }
 

@@ -103,7 +103,7 @@ Have a look at [requirements](docs/requirements.md) to get the library running.
 The pipeline library comes with the following steps:
 
 * [ansible](vars/ansible.md)
-  * [`ansible.checkoutRequirements`](vars/ansible.md#checkoutrequirementsstring-requirementsymlpath)
+  * [`ansible.checkoutRoles`](vars/ansible.md#checkoutrolesmap-config)
   * [`ansible.execPlaybook`](vars/ansible.md#execplaybookmap-config)
   * [`ansible.getGalaxyRoleInfo`](vars/ansible.md#getgalaxyroleinforole-role)
   * [`ansible.installRoles`](vars/ansible.md#installrolesmap-config)
@@ -117,11 +117,16 @@ The pipeline library comes with the following steps:
 * [`execMaven`](vars/execMaven.md)
 * [`execMavenRelease`](vars/execMavenRelease.md)
 * [`execNpm`](vars/execNpm.md)
+* [genericConfig](vars/genericConfig.md)
+  * [`load`](vars/genericConfig.md#object-loadpath-searchvalue-resultkey--null)
 * [`getScmUrl`](vars/getScmUrl.md)
 * [gitTools](vars/gitTools.md)
   * [`mirrorRepository`](vars/gitTools.md#mirrorrepositorystring-srcurl-string-targeturl-liststring-srccredentialids--null-liststring-targetcredentialids--null)
   * [`mirrorRepositoryToRemote`](vars/gitTools.md#mirrorrepositorytoremotestring-srcrepopath-gitrepository-targetrepo-liststring-targetcredentialids--null)
   * [`mirrorRepositoryToWorkspace`](vars/gitTools.md#mirrorrepositorytoworkspacegitrepository-srcrepo-liststring-srccredentialids--null)
+  * [`getFetchOrigin`](vars/gitTools.md#string-getfetchoriginstring-remotes--null)
+  * [`getPushOrigin`](vars/gitTools.md#string-getpushoriginstring-remotes--null)
+  * [`getParentBranch`](vars/gitTools.md#string-getparentbranch)
 * [jenkinsRestApi](vars/jenkinsRestApi.md)
   * [`jenkinsRestApi.findJobsByNameRegex`](vars/jenkinsRestApi.md#list-job-findjobsbynameregexmap-remote)
 * [managedScripts](vars/managedScripts.md)
@@ -129,7 +134,12 @@ The pipeline library comes with the following steps:
     * [`managedScripts.execPipelineShellScript`](vars/managedScripts.md#execpipelineshellscriptstring-scriptpath-commandbuilder-commandbuilder-null-returnstdout--false-returnstatus--false)
 * [maven](vars/maven.md)
     * [`purgeSnapshots`](vars/maven.md#purgesnapshotsmap-config)
-* [`notifyMail`](vars/notifyMail.md)
+* [notify](vars/notify.md)
+  * [`notify.mail`](vars/notify.md#notifymailmap-config)
+  * [`notify.mattermost`](vars/notify.md#notifymattermostmap-config)
+  * [`notify.mqtt`](vars/notify.md#notifymqttmap-config)
+* [`notifyMail`](vars/notifyMail.md) :warning: deprecated, use
+  [`notify.mail`](vars/notify.md#notifymailmap-config) instead
 * [`setBuildName`](vars/setBuildName.md)
 * [`setGitBranch`](vars/setGitBranch.md)
 * [`setScmUrl`](vars/setScmUrl.md)
@@ -145,7 +155,9 @@ The pipeline library comes with the following steps:
 * [Logging](docs/logging.md)
     * [`Logger`](src/io/wcm/devops/jenkins/pipeline/utils/logging/Logger.groovy)
     * [`LogLevel`](src/io/wcm/devops/jenkins/pipeline/utils/logging/LogLevel.groovy)
-* [`MapUtils`](src/io/wcm/devops/jenkins/pipeline/utils/maps/MapUtils.groovy)
+* [Configuration map merging](docs/config-map-merging.md)
+  * [`MapUtils`](src/io/wcm/devops/jenkins/pipeline/utils/maps/MapUtils.groovy)
+  * [`MapMergeMode`](src/io/wcm/devops/jenkins/pipeline/utils/maps/MapMergeMode.groovy)
 
 ## Credential and managed file auto lookup
 
@@ -153,6 +165,7 @@ The pipeline library comes with the following steps:
     *  [`Credential`](src/io/wcm/devops/jenkins/pipeline/credentials/Credential.groovy)
     *  [`CredentialParser`](src/io/wcm/devops/jenkins/pipeline/credentials/CredentialParser.groovy)
     *  [`CredentialConstants`](src/io/wcm/devops/jenkins/pipeline/credentials/CredentialConstants.groovy)
+* [Generic Configuration](docs/generic-config.md)
 * [ManagedFiles](docs/managed-files.md)
     * [`ManagedFile`](src/io/wcm/devops/jenkins/pipeline/managedfiles/ManagedFile.groovy)
     * [`ManagedFileParser`](src/io/wcm/devops/jenkins/pipeline/managedfiles/ManagedFileParser.groovy)
@@ -187,6 +200,10 @@ with jUnit/Failsafe. All integration tests have the naming format
 ### Building with maven
 
     mvn clean install
+
+### Add license file headers
+
+    mvn license:update-file-header
 
 ## Changes / Version History
 
